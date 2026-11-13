@@ -215,6 +215,10 @@
     <div class="portal-card">
         <div class="form-group">
             <input type="text" id="tenantInput" placeholder="Enter Tenant UUID (e.g. a21921dc-c79c-498d-900a-6f901ff8b7d1)" value="a21921dc-c79c-498d-900a-6f901ff8b7d1" />
+            <select id="serverPort" style="padding: 12px; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: #fff; font-size: 14px; outline: none;">
+                <option value="8001" selected>Port 8001</option>
+                <option value="8002">Port 8002</option>
+            </select>
             <button class="btn-submit" id="submitBtn" onclick="connectTenant()">Connect & Start Stream</button>
         </div>
 
@@ -245,14 +249,17 @@
     </div>
 
     <script>
-        const BACKEND_URL = window.location.origin.includes("http") && !window.location.origin.startsWith("file") 
-            ? window.location.origin 
-            : "http://127.0.0.1:8001";
+        function getBackendUrl() {
+            const portSelect = document.getElementById("serverPort");
+            const port = portSelect ? portSelect.value : "8001";
+            return `http://127.0.0.1:${port}`;
+        }
             
         let currentTenantId = "";
         let peerConnection = null;
 
         async function connectTenant() {
+            const BACKEND_URL = getBackendUrl();
             const tenantId = document.getElementById("tenantInput").value.trim();
             const statusBox = document.getElementById("statusBox");
             const streamBox = document.getElementById("streamBox");
@@ -310,7 +317,8 @@
             } catch (err) {
                 statusBox.className = "status-bar status-error";
                 statusBox.style.display = "block";
-                statusBox.textContent = `❌ ${err.message}`;
+                const backendUrl = getBackendUrl();
+                statusBox.innerHTML = `❌ <strong>${err.message}</strong> — Backend server is not reachable on <code>${backendUrl}</code>.<br><small style="color:#fca5a5;">Please make sure you have started the server in PowerShell: <code>uvicorn app.main:app --host 0.0.0.0 --port ${document.getElementById("serverPort").value} --reload</code></small>`;
                 streamBox.style.display = "none";
                 controlsBar.style.display = "none";
             } finally {
@@ -320,6 +328,7 @@
         }
 
         async function restartStream() {
+            const BACKEND_URL = getBackendUrl();
             const protocol = document.getElementById("protocolSelect").value;
             const selectedCamId = document.getElementById("camDropdown").value || "";
             const streamImg = document.getElementById("streamImg");
@@ -344,6 +353,7 @@
         }
 
         async function startWebRTC(cameraId) {
+            const BACKEND_URL = getBackendUrl();
             const webrtcVideo = document.getElementById("webrtcVideo");
             try {
                 peerConnection = new RTCPeerConnection({
