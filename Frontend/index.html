@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vision Analytics — Enterprise Multi-Tenant AI Portal</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --card-bg: #111827;
+            --card-border: #1f2937;
+            --accent: #00ff88;
+            --cyan: #38bdf8;
+            --orange: #f59e0b;
+            --text-main: #f9fafb;
+            --text-sub: #9ca3af;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+        .header p {
+            color: var(--text-sub);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .badge-bar {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .feature-badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+        .feature-badge.active {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .portal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 960px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .form-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .form-group input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--cyan);
+        }
+        .btn-submit {
+            padding: 12px 24px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-submit:hover {
+            background: #1d4ed8;
+        }
+        .status-bar {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .status-success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        .controls-bar {
+            display: none;
+            margin-bottom: 16px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #161f30;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .controls-bar select {
+            padding: 6px 12px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            color: #fff;
+            outline: none;
+            font-size: 13px;
+        }
+        .stream-container {
+            display: none;
+            text-align: center;
+            border: 2px solid #374151;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+        .stream-container img, .stream-container video {
+            width: 100%;
+            height: auto;
+            display: block;
+            max-height: 600px;
+            object-fit: contain;
+        }
+        .live-badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 10;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>⚡ Vision Analytics — Enterprise AI Portal</h1>
+        <p>Real-Time Multi-Tenant Facial Recognition, Stranger Tracking & Camera Health Monitoring</p>
+        <div class="badge-bar">
+            <span class="feature-badge active">⚡ TensorRT FP16</span>
+            <span class="feature-badge active">🚨 Camera Offline Alert</span>
+            <span class="feature-badge active">📡 WebRTC Low-Latency</span>
+            <span class="feature-badge active">👤 Stranger Enrollment</span>
+        </div>
+    </div>
+
+    <div class="portal-card">
+        <div class="form-group">
+            <input type="text" id="tenantInput" placeholder="Enter Tenant UUID (e.g. a21921dc-c79c-498d-900a-6f901ff8b7d1)" value="a21921dc-c79c-498d-900a-6f901ff8b7d1" />
+            <button class="btn-submit" id="submitBtn" onclick="connectTenant()">Connect & Start Stream</button>
+        </div>
+
+        <div id="statusBox" class="status-bar"></div>
+
+        <div id="controlsBar" class="controls-bar">
+            <div class="control-group">
+                <label for="camDropdown">Active Camera:</label>
+                <select id="camDropdown" onchange="restartStream()"></select>
+            </div>
+            <div class="control-group">
+                <label for="protocolSelect">Stream Protocol:</label>
+                <select id="protocolSelect" onchange="restartStream()">
+                    <option value="mjpeg">MJPEG Stream (Default)</option>
+                    <option value="webrtc">WebRTC (<200ms Ultra-Low Latency)</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="streamBox" class="stream-container">
+            <div class="live-badge">
+                <div class="live-dot"></div>
+                <span id="tenantBadge">AI ACTIVE</span>
+            </div>
+            <img id="streamImg" src="" alt="Live Video Feed" />
+            <video id="webrtcVideo" style="display:none;" autoplay playsinline muted></video>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = window.location.origin.includes("http") && !window.location.origin.startsWith("file") 
+            ? window.location.origin 
+            : "http://127.0.0.1:8001";
+            
+        let currentTenantId = "";
+        let peerConnection = null;
+
+        async function connectTenant() {
+            const tenantId = document.getElementById("tenantInput").value.trim();
+            const statusBox = document.getElementById("statusBox");
+            const streamBox = document.getElementById("streamBox");
+            const controlsBar = document.getElementById("controlsBar");
+            const camDropdown = document.getElementById("camDropdown");
+            const submitBtn = document.getElementById("submitBtn");
+
+            if (!tenantId) {
+                alert("Please enter a Tenant UUID!");
+                return;
+            }
+
+            submitBtn.textContent = "Connecting to DB...";
+            submitBtn.disabled = true;
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/v1/tenant/verify`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tenant_id: tenantId })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Tenant verification failed");
+
+                currentTenantId = tenantId;
+
+                // Status info
+                statusBox.className = "status-bar status-success";
+                statusBox.style.display = "flex";
+                statusBox.innerHTML = `
+                    <span>🏢 Database: <strong>${data.database_name}</strong> | Faces: <strong>${data.registered_persons}</strong></span>
+                    <span>Status: <strong>Connected</strong></span>
+                `;
+
+                document.getElementById("tenantBadge").textContent = `${data.tenant_name} • LIVE`;
+
+                // Cameras
+                camDropdown.innerHTML = "";
+                if (data.cameras && data.cameras.length > 0) {
+                    data.cameras.forEach((cam) => {
+                        const opt = document.createElement("option");
+                        opt.value = cam.id;
+                        opt.textContent = `${cam.asset_no || 'Camera'} (${cam.type || 'IN'})`;
+                        camDropdown.appendChild(opt);
+                    });
+                    controlsBar.style.display = "flex";
+                } else {
+                    controlsBar.style.display = "none";
+                }
+
+                streamBox.style.display = "block";
+                await restartStream();
+
+            } catch (err) {
+                statusBox.className = "status-bar status-error";
+                statusBox.style.display = "block";
+                statusBox.textContent = `❌ ${err.message}`;
+                streamBox.style.display = "none";
+                controlsBar.style.display = "none";
+            } finally {
+                submitBtn.textContent = "Connect & Start Stream";
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function restartStream() {
+            const protocol = document.getElementById("protocolSelect").value;
+            const selectedCamId = document.getElementById("camDropdown").value || "";
+            const streamImg = document.getElementById("streamImg");
+            const webrtcVideo = document.getElementById("webrtcVideo");
+
+            // Stop existing WebRTC if any
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+
+            if (protocol === "webrtc") {
+                streamImg.style.display = "none";
+                streamImg.src = "";
+                webrtcVideo.style.display = "block";
+                await startWebRTC(selectedCamId);
+            } else {
+                webrtcVideo.style.display = "none";
+                streamImg.style.display = "block";
+                streamImg.src = `${BACKEND_URL}/api/v1/stream/video-feed?tenant_id=${currentTenantId}&camera_id=${selectedCamId}&_t=${Date.now()}`;
+            }
+        }
+
+        async function startWebRTC(cameraId) {
+            const webrtcVideo = document.getElementById("webrtcVideo");
+            try {
+                peerConnection = new RTCPeerConnection({
+                    iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+                });
+
+                peerConnection.ontrack = (event) => {
+                    webrtcVideo.srcObject = event.streams[0];
+                };
+
+                peerConnection.addTransceiver("video", { direction: "recvonly" });
+
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+
+                const res = await fetch(`${BACKEND_URL}/api/v1/stream/webrtc-offer`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        sdp: peerConnection.localDescription.sdp,
+                        type: peerConnection.localDescription.type,
+                        tenant_id: currentTenantId,
+                        camera_id: cameraId
+                    })
+                });
+
+                const answer = await res.json();
+                if (!res.ok) throw new Error(answer.detail || "WebRTC negotiation failed");
+
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+            } catch (err) {
+                console.error("WebRTC Error:", err);
+                alert("WebRTC streaming initialization error: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

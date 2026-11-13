@@ -1,0 +1,22 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+insightface>=0.7.3
+onnxruntime-gpu>=1.16.0
+opencv-python>=4.8.0
+numpy>=1.24.0,<2.0.0
+# torch>=2.0.0
+# torchvision
+sqlalchemy>=2.0.0
+pymysql>=1.1.0
+cryptography>=41.0.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+pytz>=2023.3
+colorama>=0.4.6
+pydantic>=2.0.0
+aiortc>=1.15.0
+av>=17.1.0
+
+
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu132
+# print(torch.cuda.is_available())
