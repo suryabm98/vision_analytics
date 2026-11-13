@@ -38,7 +38,7 @@ Vision Analytics is an enterprise-grade AI video analytics, facial recognition, 
 ### 1. Activate Environment & Run Backend
 ```powershell
 cd "D:\BM\Projects\All worked projects folder\Github_Projects\vision_analytics"
-..\vision_streaming\streamingscript\Scripts\activate
+.\analyticsscript\Scripts\activate
 uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
